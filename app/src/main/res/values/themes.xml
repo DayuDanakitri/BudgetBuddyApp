@@ -1,9 +1,33 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Base.Theme.BudgetBuddyApp" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.BudgetBuddyApp" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryVariant">@color/colorPrimaryVariant</item>
+        <item name="colorOnPrimary">@color/colorOnPrimary</item>
+        <item name="colorSecondary">@color/colorSecondary</item>
+        <item name="colorOnSecondary">@color/colorOnSecondary</item>
+        <item name="colorSurface">@color/colorSurface</item>
+        <item name="colorOnSurface">@color/colorOnSurface</item>
+        <item name="android:colorBackground">@color/colorBackground</item>
+        <item name="colorOnBackground">@color/colorOnBackground</item>
+        <item name="colorError">@color/colorError</item>
+        <item name="colorOnError">@color/colorOnError</item>
+        <item name="android:statusBarColor">@color/bg_dark</item>
+        <item name="android:navigationBarColor">@color/bg_dark</item>
+        <item name="android:windowLightStatusBar">false</item>
     </style>
 
-    <style name="Theme.BudgetBuddyApp" parent="Base.Theme.BudgetBuddyApp" />
+    <style name="ToggleButton" parent="Widget.MaterialComponents.Button.TextButton">
+        <item name="android:textColor">@color/selector_toggle_text</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:stateListAnimator">@null</item>
+        <item name="rippleColor">@color/accent_blue</item>
+    </style>
+
+    <style name="DatePickerTheme" parent="Theme.MaterialComponents.Dialog">
+        <item name="colorPrimary">@color/accent_blue</item>
+        <item name="colorOnSurface">@color/white</item>
+        <item name="android:colorBackground">@color/bg_card</item>
+        <item name="colorSurface">@color/bg_card</item>
+    </style>
 </resources>

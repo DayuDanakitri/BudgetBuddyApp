@@ -21,5 +21,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "BudgetBuddy"
+rootProject.name = "BudgetBuddyApp"
 include(":app")
