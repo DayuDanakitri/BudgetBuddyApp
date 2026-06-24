@@ -10,16 +10,24 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.BudgetBuddyApp">
+        android:theme="@style/Theme.BudgetBuddy">
+
         <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity android:name=".ui.home.HomeActivity" android:exported="false"/>
+        <activity android:name=".ui.transaction.AddTransactionActivity" android:exported="false" android:windowSoftInputMode="adjustResize"/>
+        <activity android:name=".ui.transaction.EditTransactionActivity" android:exported="false" android:windowSoftInputMode="adjustResize"/>
+        <activity android:name=".ui.transaction.DetailTransactionActivity" android:exported="false"/>
+        <activity android:name=".ui.category.CategoryActivity" android:exported="false"/>
+        <activity android:name=".ui.insight.InsightActivity" android:exported="false"/>
+
     </application>
 
 </manifest>
