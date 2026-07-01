@@ -34,6 +34,7 @@ class EditTransactionActivity : AppCompatActivity() {
     private var selectedDate: Long = System.currentTimeMillis()
     private var isFormatting = false
     private var hasChanges = false
+    private var isDataLoaded = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,25 +46,28 @@ class EditTransactionActivity : AppCompatActivity() {
 
         setupBackPress()
         setupDatePicker()
-        setupAmountFormatter()
-        setupObservers()
-        loadTransaction()
         setupClickListeners()
+        loadTransaction()
     }
 
     private fun setupBackPress() {
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                if (hasChanges) {
-                    ExitWithoutSavingDialog.show(this@EditTransactionActivity,
-                        onDiscard = { finish() },
-                        onContinue = { /* stay */ }
-                    )
-                } else {
-                    finish()
-                }
+                handleBack()
             }
         })
+    }
+
+    private fun handleBack() {
+        if (hasChanges) {
+            ExitWithoutSavingDialog.show(
+                this,
+                onDiscard = { finish() },
+                onContinue = { /* tetap di halaman */ }
+            )
+        } else {
+            finish()
+        }
     }
 
     private fun setupDatePicker() {
@@ -81,7 +85,7 @@ class EditTransactionActivity : AppCompatActivity() {
                 newCal.set(year, month, day)
                 selectedDate = newCal.timeInMillis
                 updateDateDisplay()
-                hasChanges = true
+                if (isDataLoaded) hasChanges = true
             },
             cal.get(Calendar.YEAR),
             cal.get(Calendar.MONTH),
@@ -93,7 +97,73 @@ class EditTransactionActivity : AppCompatActivity() {
         binding.tvDate.text = DateUtils.formatDate(selectedDate)
     }
 
-    private fun setupAmountFormatter() {
+    private fun loadTransaction() {
+        lifecycleScope.launch {
+            val twc = transactionViewModel.getByIdWithCategory(transactionId) ?: return@launch
+            val t = twc.transaction
+
+            selectedType = t.type
+            selectedDate = t.date
+
+            // Tampilkan label tipe (tidak bisa diubah saat edit)
+            val isIncome = t.type == "INCOME"
+            binding.tvTypeLabel.text = if (isIncome) "Pemasukan" else "Pengeluaran"
+            binding.tvTypeLabel.setTextColor(
+                getColor(if (isIncome) R.color.income_green else R.color.expense_red)
+            )
+
+            // Isi semua field SEBELUM pasang watcher
+            binding.etAmount.setText(CurrencyFormatter.formatShort(t.amount))
+            binding.etName.setText(t.name)
+            binding.etDescription.setText(t.description)
+            updateDateDisplay()
+
+            // Isi spinner kategori
+            categoryViewModel.allCategories.observe(this@EditTransactionActivity) { categories ->
+                categoryList = categories
+                val filtered = categories.filter { it.type == t.type }
+                val labels = filtered.map { "${it.iconEmoji} ${it.name}" }
+                val spinnerAdapter = ArrayAdapter(
+                    this@EditTransactionActivity,
+                    R.layout.item_spinner,
+                    labels
+                )
+                spinnerAdapter.setDropDownViewResource(R.layout.item_spinner_dropdown)
+                binding.spinnerCategory.adapter = spinnerAdapter
+
+                val idx = filtered.indexOfFirst { it.id == t.categoryId }
+                if (idx >= 0) binding.spinnerCategory.setSelection(idx)
+
+                // Pasang watcher baru setelah data selesai diisi
+                if (!isDataLoaded) {
+                    isDataLoaded = true
+                    hasChanges = false
+                    setupChangeWatchers()
+                }
+            }
+        }
+    }
+
+    private fun setupChangeWatchers() {
+        // Watcher untuk nama
+        binding.etName.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                if (isDataLoaded) hasChanges = true
+            }
+            override fun afterTextChanged(s: Editable?) {}
+        })
+
+        // Watcher untuk deskripsi
+        binding.etDescription.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                if (isDataLoaded) hasChanges = true
+            }
+            override fun afterTextChanged(s: Editable?) {}
+        })
+
+        // Watcher untuk nominal (dengan formatter Rupiah)
         binding.etAmount.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
@@ -106,76 +176,13 @@ class EditTransactionActivity : AppCompatActivity() {
                 binding.etAmount.setText(formatted)
                 binding.etAmount.setSelection(formatted.length)
                 isFormatting = false
-                hasChanges = true
+                if (isDataLoaded) hasChanges = true
             }
         })
-    }
-
-    private fun setupObservers() {
-        categoryViewModel.allCategories.observe(this) { categories ->
-            categoryList = categories
-        }
-    }
-
-    private fun loadTransaction() {
-        lifecycleScope.launch {
-            val twc = transactionViewModel.getByIdWithCategory(transactionId) ?: return@launch
-            val t = twc.transaction
-
-            selectedType = t.type
-            selectedDate = t.date
-
-            // Set type toggle (read-only display in edit mode - show current type)
-            val isIncome = t.type == "INCOME"
-            binding.tvTypeLabel.text = if (isIncome) "Pemasukan" else "Pengeluaran"
-            binding.tvTypeLabel.setTextColor(
-                getColor(if (isIncome) R.color.income_green else R.color.expense_red)
-            )
-
-            binding.etAmount.setText(CurrencyFormatter.formatShort(t.amount))
-            binding.etName.setText(t.name)
-            binding.etDescription.setText(t.description)
-            updateDateDisplay()
-
-            // Wait for categories then set spinner
-            categoryViewModel.allCategories.observe(this@EditTransactionActivity) { categories ->
-                categoryList = categories
-                val filtered = categories.filter { it.type == t.type }
-                val labels = filtered.map { "${it.iconEmoji} ${it.name}" }
-                val adapter = ArrayAdapter(this@EditTransactionActivity, R.layout.item_spinner, labels)
-                adapter.setDropDownViewResource(R.layout.item_spinner_dropdown)
-                binding.spinnerCategory.adapter = adapter
-                val idx = filtered.indexOfFirst { it.id == t.categoryId }
-                if (idx >= 0) binding.spinnerCategory.setSelection(idx)
-                hasChanges = false
-            }
-        }
     }
 
     private fun setupClickListeners() {
-        binding.btnBack.setOnClickListener {
-            if (hasChanges) {
-                ExitWithoutSavingDialog.show(this,
-                    onDiscard = { finish() },
-                    onContinue = { }
-                )
-            } else {
-                finish()
-            }
-        }
-
-        binding.etName.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) { hasChanges = true }
-            override fun afterTextChanged(s: Editable?) {}
-        })
-
-        binding.etDescription.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) { hasChanges = true }
-            override fun afterTextChanged(s: Editable?) {}
-        })
-
+        binding.btnBack.setOnClickListener { handleBack() }
         binding.btnSave.setOnClickListener { saveChanges() }
     }
 
@@ -212,7 +219,12 @@ class EditTransactionActivity : AppCompatActivity() {
                 date = selectedDate
             )
             transactionViewModel.update(updated)
-            Toast.makeText(this@EditTransactionActivity, "Perubahan disimpan", Toast.LENGTH_SHORT).show()
+            hasChanges = false
+            Toast.makeText(
+                this@EditTransactionActivity,
+                "Perubahan disimpan",
+                Toast.LENGTH_SHORT
+            ).show()
             finish()
         }
     }

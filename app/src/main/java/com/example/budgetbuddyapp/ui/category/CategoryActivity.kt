@@ -19,7 +19,7 @@ class CategoryActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityCategoryBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
+        android.util.Log.e("CATEGORY_DEBUG", "=== CategoryActivity onCreate ===")
         setupRecyclerView()
         setupObservers()
         setupClickListeners()
@@ -38,6 +38,7 @@ class CategoryActivity : AppCompatActivity() {
 
     private fun setupObservers() {
         viewModel.allCategories.observe(this) { categories ->
+            android.util.Log.e("CATEGORY_DEBUG", "Jumlah kategori: ${categories.size}")
             adapter.submitList(categories)
         }
     }

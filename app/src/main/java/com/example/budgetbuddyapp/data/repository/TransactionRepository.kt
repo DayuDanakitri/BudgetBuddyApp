@@ -11,6 +11,8 @@ class TransactionRepository(private val dao: TransactionDao) {
     fun getMonthlyIncome(yearMonth: String) = dao.getMonthlyIncome(yearMonth)
     fun getMonthlyExpense(yearMonth: String) = dao.getMonthlyExpense(yearMonth)
     fun getMonthlyTransactionsWithCategory(yearMonth: String) = dao.getMonthlyTransactionsWithCategory(yearMonth)
+    fun getMonthlyTransactionCount(yearMonth: String) = dao.getMonthlyTransactionCount(yearMonth)
+    suspend fun getTopExpenseCategoryForMonth(yearMonth: String) = dao.getTopExpenseCategoryForMonth(yearMonth)
     suspend fun getById(id: Int) = dao.getById(id)
     suspend fun getByIdWithCategory(id: Int) = dao.getByIdWithCategory(id)
     suspend fun insert(transaction: Transaction) = dao.insert(transaction)

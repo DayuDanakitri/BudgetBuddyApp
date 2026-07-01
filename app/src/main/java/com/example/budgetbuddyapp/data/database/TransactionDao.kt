@@ -51,4 +51,21 @@ interface TransactionDao {
     @Transaction
     @Query("SELECT * FROM transactions WHERE strftime('%Y-%m', date/1000, 'unixepoch') = :yearMonth ORDER BY date DESC")
     fun getMonthlyTransactionsWithCategory(yearMonth: String): Flow<List<TransactionWithCategory>>
+
+    @Query("SELECT COUNT(*) FROM transactions WHERE strftime('%Y-%m', date/1000, 'unixepoch') = :yearMonth")
+    fun getMonthlyTransactionCount(yearMonth: String): Flow<Int>
+
+    @Query("""
+    SELECT categoryId, SUM(amount) as totalAmount 
+    FROM transactions 
+    WHERE type = 'EXPENSE' AND strftime('%Y-%m', date/1000, 'unixepoch') = :yearMonth
+    GROUP BY categoryId
+    ORDER BY totalAmount DESC
+    LIMIT 1
+""")
+    suspend fun getTopExpenseCategoryForMonth(yearMonth: String): CategoryExpenseSum?
+    data class CategoryExpenseSum(
+        val categoryId: Int?,
+        val totalAmount: Double
+    )
 }

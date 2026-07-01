@@ -17,6 +17,7 @@ class CategoryAdapter(
     inner class ViewHolder(private val binding: ItemCategoryBinding) :
         RecyclerView.ViewHolder(binding.root) {
         fun bind(category: Category) {
+            android.util.Log.e("CATEGORY_DEBUG", "Binding kategori: ${category.name}")
             binding.tvEmoji.text = category.iconEmoji
             binding.tvName.text = category.name
             binding.tvType.text = if (category.type == "INCOME") "Pemasukan" else "Pengeluaran"
@@ -25,13 +26,23 @@ class CategoryAdapter(
                     if (category.type == "INCOME") R.color.income_green else R.color.expense_red
                 )
             )
-            binding.btnEdit.setOnClickListener { onEditClick(category) }
-            binding.btnDelete.setOnClickListener { onDeleteClick(category) }
+            binding.btnEdit.setOnClickListener {
+                android.util.Log.e("CATEGORY_DEBUG", "EDIT DIKLIK: ${category.name}")
+                onEditClick(category)
+            }
+            binding.btnDelete.setOnClickListener {
+                android.util.Log.e("CATEGORY_DEBUG", "DELETE DIKLIK: ${category.name}")
+                onDeleteClick(category)
+            }
         }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val binding = ItemCategoryBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        val binding = ItemCategoryBinding.inflate(
+            LayoutInflater.from(parent.context), parent, false
+        )
+        binding.root.isClickable = false
+        binding.root.isFocusable = false
         return ViewHolder(binding)
     }
 

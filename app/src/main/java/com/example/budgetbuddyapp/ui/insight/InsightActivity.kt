@@ -1,5 +1,6 @@
 package com.example.budgetbuddyapp.ui.insight
 
+import android.graphics.Color
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -8,7 +9,10 @@ import com.example.budgetbuddyapp.databinding.ActivityInsightBinding
 import com.example.budgetbuddyapp.data.relation.TransactionWithCategory
 import com.example.budgetbuddyapp.ui.viewmodel.InsightViewModel
 import com.example.budgetbuddyapp.utils.CurrencyFormatter
-import com.example.budgetbuddyapp.utils.DateUtils
+import com.github.mikephil.charting.data.PieData
+import com.github.mikephil.charting.data.PieDataSet
+import com.github.mikephil.charting.data.PieEntry
+import com.github.mikephil.charting.formatter.PercentFormatter
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -18,12 +22,26 @@ class InsightActivity : AppCompatActivity() {
     private val viewModel: InsightViewModel by viewModels()
     private lateinit var adapter: CategoryPercentAdapter
 
+    private val pieColors = listOf(
+        Color.parseColor("#518796"), // accent_blue
+        Color.parseColor("#7DB38C"), // income_green
+        Color.parseColor("#B37D7D"), // expense_red
+        Color.parseColor("#8E7DBF"), // ungu
+        Color.parseColor("#BFA97D"), // coklat emas
+        Color.parseColor("#7DADB3"), // biru muda
+        Color.parseColor("#B3977D"), // oranye muted
+        Color.parseColor("#A0B37D"), // hijau muda
+        Color.parseColor("#B37DAD"), // pink muted
+        Color.parseColor("#7D8EB3"), // biru slate
+    )
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityInsightBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         setupRecyclerView()
+        setupPieChart()
         setupObservers()
         setupClickListeners()
     }
@@ -32,6 +50,24 @@ class InsightActivity : AppCompatActivity() {
         adapter = CategoryPercentAdapter()
         binding.rvCategoryPercent.layoutManager = LinearLayoutManager(this)
         binding.rvCategoryPercent.adapter = adapter
+    }
+
+    private fun setupPieChart() {
+        binding.pieChart.apply {
+            description.isEnabled = false
+            isDrawHoleEnabled = true
+            holeRadius = 52f
+            transparentCircleRadius = 57f
+            setHoleColor(Color.parseColor("#222222"))       // bg_card
+            setTransparentCircleColor(Color.parseColor("#222222"))
+            setTransparentCircleAlpha(80)
+            setUsePercentValues(true)
+            setDrawEntryLabels(false)                        // label di RecyclerView sudah cukup
+            legend.isEnabled = false
+            setNoDataText("Tidak ada transaksi")
+            setNoDataTextColor(Color.parseColor("#555555"))
+            animateY(800)
+        }
     }
 
     private fun setupObservers() {
@@ -72,9 +108,52 @@ class InsightActivity : AppCompatActivity() {
 
         adapter.submitList(items)
 
-        val totalLabel = if (type == "INCOME") "Total Pemasukan" else "Total Pengeluaran"
-        binding.tvTotalLabel.text = totalLabel
+        // Update label total
+        binding.tvTotalLabel.text = if (type == "INCOME") "Total Pemasukan" else "Total Pengeluaran"
         binding.tvGrandTotal.text = CurrencyFormatter.formatShort(total)
+
+        // Update pie chart
+        updatePieChart(items, total)
+    }
+
+    private fun updatePieChart(items: List<CategoryPercentItem>, total: Double) {
+        if (items.isEmpty() || total == 0.0) {
+            binding.pieChart.visibility = android.view.View.GONE
+            binding.tvChartEmpty.visibility = android.view.View.VISIBLE
+            return
+        }
+
+        binding.pieChart.visibility = android.view.View.VISIBLE
+        binding.tvChartEmpty.visibility = android.view.View.GONE
+
+        val entries = items.mapIndexed { _, item ->
+            PieEntry(item.amount.toFloat(), item.name)
+        }
+
+        val dataSet = PieDataSet(entries, "").apply {
+            colors = items.mapIndexed { index, _ ->
+                pieColors[index % pieColors.size]
+            }
+            sliceSpace = 2f
+            selectionShift = 6f
+            valueFormatter = PercentFormatter(binding.pieChart)
+            valueTextColor = Color.WHITE
+            valueTextSize = 11f
+        }
+
+        val pieData = PieData(dataSet).apply {
+            setValueFormatter(PercentFormatter(binding.pieChart))
+        }
+
+        binding.pieChart.apply {
+            data = pieData
+            // Center text: total
+            centerText = CurrencyFormatter.formatShort(total)
+            setCenterTextColor(Color.WHITE)
+            setCenterTextSize(13f)
+            invalidate()
+            animateY(600)
+        }
     }
 
     private fun setupClickListeners() {
@@ -93,9 +172,12 @@ class InsightActivity : AppCompatActivity() {
             binding.btnExpense.isSelected = true
             viewModel.monthlyTransactions.value?.let { updateCategoryPercents(it) }
         }
-
-        // Default: expense
+        
         binding.btnExpense.isSelected = true
         binding.btnIncome.isSelected = false
+
+        binding.btnViewMonthlyReport.setOnClickListener {
+            startActivity(android.content.Intent(this, com.example.budgetbuddyapp.ui.report.MonthlyReportActivity::class.java))
+        }
     }
 }

@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.budgetbuddy"
+    namespace = "com.example.budgetbuddyapp"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.example.budgetbuddy"
+        applicationId = "com.example.budgetbuddyapp"
         minSdk = 24
         targetSdk = 34
 
