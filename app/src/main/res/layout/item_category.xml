@@ -6,7 +6,9 @@
     android:orientation="horizontal"
     android:paddingHorizontal="20dp"
     android:paddingVertical="12dp"
-    android:gravity="center_vertical">
+    android:gravity="center_vertical"
+    android:clickable="false"
+    android:focusable="false">
 
     <TextView
         android:id="@+id/tvEmoji"
@@ -22,7 +24,9 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:orientation="vertical"
-        android:layout_marginStart="12dp">
+        android:layout_marginStart="12dp"
+        android:clickable="false"
+        android:focusable="false">
 
         <TextView
             android:id="@+id/tvName"
@@ -47,7 +51,9 @@
         android:tint="#888888"
         android:background="?attr/selectableItemBackgroundBorderless"
         android:contentDescription="Edit"
-        android:layout_marginEnd="8dp"/>
+        android:layout_marginEnd="8dp"
+        android:clickable="true"
+        android:focusable="true"/>
 
     <ImageButton
         android:id="@+id/btnDelete"
@@ -56,5 +62,7 @@
         android:src="@drawable/ic_delete"
         android:tint="@color/expense_red"
         android:background="?attr/selectableItemBackgroundBorderless"
-        android:contentDescription="Hapus"/>
+        android:contentDescription="Hapus"
+        android:clickable="true"
+        android:focusable="true"/>
 </LinearLayout>

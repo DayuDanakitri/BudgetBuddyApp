@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.budgetbuddyapp"
+    namespace = "com.example.budgetbuddy"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.example.budgetbuddyapp"
+        applicationId = "com.example.budgetbuddy"
         minSdk = 24
         targetSdk = 34
 
@@ -86,4 +86,5 @@ dependencies {
     // Android Test
     androidTestImplementation("androidx.test.ext:junit:1.2.1")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
 }

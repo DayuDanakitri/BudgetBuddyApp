@@ -18,8 +18,9 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        maven { url = uri("https://jitpack.io") }
     }
 }
 
-rootProject.name = "BudgetBuddyApp"
+rootProject.name = "BudgetBuddy"
 include(":app")

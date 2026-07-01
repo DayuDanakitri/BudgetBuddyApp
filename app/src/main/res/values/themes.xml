@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.BudgetBuddyApp" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="Theme.BudgetBuddy" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryVariant">@color/colorPrimaryVariant</item>
         <item name="colorOnPrimary">@color/colorOnPrimary</item>
@@ -17,6 +17,7 @@
         <item name="android:windowLightStatusBar">false</item>
     </style>
 
+    <!-- Toggle button style -->
     <style name="ToggleButton" parent="Widget.MaterialComponents.Button.TextButton">
         <item name="android:textColor">@color/selector_toggle_text</item>
         <item name="android:textAllCaps">false</item>
@@ -24,10 +25,12 @@
         <item name="rippleColor">@color/accent_blue</item>
     </style>
 
-    <style name="DatePickerTheme" parent="Theme.MaterialComponents.Dialog">
+    <style name="DatePickerTheme" parent="Theme.MaterialComponents.Light.Dialog">
         <item name="colorPrimary">@color/accent_blue</item>
-        <item name="colorOnSurface">@color/white</item>
-        <item name="android:colorBackground">@color/bg_card</item>
-        <item name="colorSurface">@color/bg_card</item>
+        <item name="colorOnSurface">#000000</item>
+        <item name="android:colorBackground">#FFFFFF</item>
+        <item name="colorSurface">#FFFFFF</item>
+        <item name="android:textColorPrimary">#000000</item>
+        <item name="android:textColorSecondary">#555555</item>
     </style>
 </resources>
